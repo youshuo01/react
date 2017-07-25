@@ -2,7 +2,6 @@ require('normalize.css/normalize.css');
 require('styles/App.css');
 
 import React from 'react';
-
 let imageDatas = require('json!../data/imageDatas.json');
 console.log(imageDatas);
 // let yeomanImage = require('../images/yeoman.png');
@@ -50,7 +49,7 @@ class ImgFigure extends React.Component {
     	}
     	//如果图片的旋转角度有值且不为0. 添加旋转角度
     	if(this.props.arrange.rotate){
-    		(['Moz','Ms','Webkit','O']).forEach(value => {
+    		(['Moz','ms','Webkit','O']).forEach(value => {
     			styleObj[value + 'Transform'] = 'rotate(' + this.props.arrange.rotate + 'deg)';
     		})
     		styleObj['transform'] = 'rotate(' + this.props.arrange.rotate + 'deg)';
@@ -78,6 +77,36 @@ class ImgFigure extends React.Component {
     }
 }
 
+//控制组件
+class ControllerUnit extends React.Component {
+
+	handleClick(e) {
+		//如果点击的是当前正在选中态的按钮 则翻转图片 否则居中
+		if(this.props.arrange.isCenter) {
+			this.props.inverse();
+		}else {
+			this.props.center();
+		}
+		e.preventDefault();
+		e.stopPropagation();
+
+	}
+	render(){
+		var controllerUnitClassName = "controller-unit";
+		//如果对应的是居中的图片，显示控制按钮的居中态
+		if(this.props.arrange.isCenter) {
+			controllerUnitClassName += " is-center";
+			//如果同时对应的是翻转图片
+			if(this.props.arrange.isInverse) {
+			controllerUnitClassName += " is-inverse";
+			}
+		}
+		return (
+			<span className = {controllerUnitClassName} onClick={this.handleClick.bind(this)}>
+			</span>
+		)
+	}
+}
 class AppComponent extends React.Component {
   constructor(props) { //es6 class内不允许定义属性 只允许定义方法
   		super(props)
@@ -261,10 +290,12 @@ class AppComponent extends React.Component {
       			top:0
       		},
       		rotate: 0,
-      		isInverse: false
+      		isInverse: false,
+      		isCenter: false
       	};
       }
       imgFigures.push(<ImgFigure data = {value} key = {index} ref = {'imgFigure' + index}  arrange = {this.state.imgsArrangeArr[index]} inverse = {this.inverse(index)} center = {this.center(index)} />);
+      controllerUnits.push(<ControllerUnit  key = {index} arrange = {this.state.imgsArrangeArr[index]} inverse = {this.inverse(index)} center = {this.center(index)}/>);
     });
     return (
         <section className="stage" ref="stage">
